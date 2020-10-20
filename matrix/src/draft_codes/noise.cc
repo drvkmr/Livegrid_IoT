@@ -13,6 +13,18 @@
 #include <stdio.h>
 #include <signal.h>
 
+//#include <json/json.h>
+//#include <jsoncpp/json/json.h>
+//#include <json/value.h>
+#include <fstream>
+
+#include<vector>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+using namespace std;
+
 using rgb_matrix::GPIO;
 using rgb_matrix::RGBMatrix;
 using rgb_matrix::Canvas;
@@ -34,13 +46,62 @@ static void InterruptHandler(int signo) {
 
 static void DrawOnCanvas(Canvas *canvas, FastNoise noise) {
   canvas->Fill(0, 0, 0);
-
   while (!interrupt_received) {
+     printf("First parsing");
+     std::ifstream json_file("/data/data.json", std::ifstream::binary);
+     std::ostringstream ss;
+     ss << json_file.rdbuf(); // reading data
+     std::string stringJson = ss.str();
+    //  printf("data.json: %s",stringJson);
+
+     vector<string> result;
+     stringstream s_stream(stringJson); //create string stream from the string
+     while(s_stream.good()) {
+      string substr;
+      getline(s_stream, substr, ','); //get first string delimited by comma
+      result.push_back(substr);
+     }
+     for(int i = 0; i<result.size(); i++) {
+      if(i == 0) {
+	// printf("%s \n", result.at(0).substr(result.at(0).find(":") + 1).c_str());
+	speed = atof(result.at(0).substr(result.at(0).find(":") + 1).c_str());
+      }
+      if(i == 1) {
+	// printf("%s \n", result.at(1).substr(result.at(1).find(":") + 1).c_str());
+        scale = atof(result.at(1).substr(result.at(1).find(":") + 1).c_str());
+      }
+      if(i == 2) {
+	// printf("%s \n", result.at(2).substr(result.at(2).find(":") + 1).c_str());
+	baseR = atoi(result.at(2).substr(result.at(2).find(":") + 1).c_str());
+      }
+
+      if(i == 3) {
+	// printf("%s \n", result.at(3).substr(result.at(3).find(":") + 1).c_str());
+        baseG = atoi(result.at(3).substr(result.at(3).find(":") + 1).c_str());
+      }
+      if(i == 4) {
+	// printf("%s \n", result.at(4).substr(result.at(4).find(":") + 1).c_str());
+        baseB = atoi(result.at(4).substr(result.at(4).find(":") + 1).c_str());
+      }
+      if(i == 5) {
+	string a = result.at(5).substr(result.at(5).find(":") + 1);
+	// printf("%s \n",  a.substr(0,a.size()-1).c_str());
+      	globalBrightness = atof(a.substr(0,a.size()-1).c_str());
+      }
+     }
+
+    //  printf("speed: %f \n",  speed);
+    //  printf("scale: %f \n",  scale);
+    //  printf("globalBrightness: %f \n",  globalBrightness);
+    //  printf("baseR: %d \n",  baseR);
+    //  printf("baseG: %d \n",  baseG);
+    //  printf("baseB: %d \n",  baseB);
+
     for(float i=0.0f; i<canvas->width(); i+=1.0f) {
       for(float j=0.0f; j<canvas->height(); j+=1.0f) {
-        float col = (noise.GetNoise(i*scale,j*scale,k*speed)+1.0f)/2.0f*globalBrightness;
+        float col = (noise.GetNoise(i*scale,j*scale,k*speed)+1.0f)/2.0f*globalBrightness/255;
         // int col = (int)((noise.GetNoise(i,j,k)+1.0)/2.0*100.0);
-        canvas->SetPixel(i, j, col, col, col);
+        canvas->SetPixel(i, j, col * baseR, col * baseG, col * baseB);
       }
     }
     k+=1.0f;

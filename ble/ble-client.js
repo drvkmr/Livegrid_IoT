@@ -1,24 +1,24 @@
 class BalenaBLE {
   constructor() {
     this.device = null;
-    this.led = null;
+    this.sliders = null;
     this.cpuVendor = null;
     this.cpuSpeed = null;
-    this.onDisconnected = this.onDisconnected.bind(this);
+    this.onDisconnected = this.onDisconnected.bind(this);    
   }
 
   /* the LED characteristic providing on/off capabilities */
-  async setLedCharacteristic() {
+  async setSlidersCharacteristic() {
     const service = await this.device.gatt.getPrimaryService(0xfff0);
     const characteristic = await service.getCharacteristic(
       "d7e84cb2-ff37-4afc-9ed8-5577aeb8454c"
     );
     // characteristic.startNotifications();
-    this.led = characteristic;
+    this.sliders = characteristic;
 
-    // await this.led.startNotifications();
+    // await this.sliders.startNotifications();
 
-    // this.led.addEventListener(
+    // this.sliders.addEventListener(
     //   "characteristicvaluechanged",
     //   handleLedStatusChanged
     // );
@@ -67,11 +67,6 @@ class BalenaBLE {
     await this.device.gatt.connect();
   }
 
-  /* read LED state */
-  // async readLed() {
-  //   await this.led.readValue();
-  // }
-
   /* read CPU manufacturer */
   async readCPUVendor() {
     let vendor = await this.cpuVendor.readValue();
@@ -83,11 +78,22 @@ class BalenaBLE {
     let speed = await this.cpuSpeed.readValue();
     return decode(speed);
   }
-
-  /* change LED state */
-  async writeLed(data) {
-    await this.led.writeValue(Uint8Array.of(data));
-    // await this.readLed();
+ 
+  async readJson() {
+  	 console.log("File read");
+ 	 let json = await this.sliders.readValue();
+ 	 return decode(json);
+  }
+  
+  /* change slider values*/
+  async writeJson(data) {
+  	console.log("File write");
+  	console.log(data);
+  	
+  	//var buf = new Buffer(data);
+  	var buf = new TextEncoder().encode(data);
+  	await this.sliders.writeValue(buf);
+    //await this.readJson();
   }
 
   async hexToRgb(hex) {
@@ -96,11 +102,6 @@ class BalenaBLE {
     const b = parseInt(hex.substring(5, 7), 16);
   
     return [r, g, b];
-  }
-
-  async writeColor(data) {
-    await this.led.writeValue(Uint8Array.of(hexToRgb(data)));
-    await this.readLed(); 
   }
 
   /* disconnect from peripheral */
