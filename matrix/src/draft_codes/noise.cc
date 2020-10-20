@@ -34,9 +34,10 @@ volatile bool interrupt_received = false;
 int baseR = 255;
 int baseG = 255;
 int baseB = 255;
-float globalBrightness = 50.0f;
+float globalBrightness = 0.0f;
 float scale = 5.0f;
 float speed = 1.0f;
+float contrast = 50.0f;
 float k = 0.0f;
 
 
@@ -64,11 +65,11 @@ static void DrawOnCanvas(Canvas *canvas, FastNoise noise) {
      for(int i = 0; i<result.size(); i++) {
       if(i == 0) {
 	// printf("%s \n", result.at(0).substr(result.at(0).find(":") + 1).c_str());
-	speed = atof(result.at(0).substr(result.at(0).find(":") + 1).c_str());
+	speed = atof(result.at(0).substr(result.at(0).find(":") + 1).c_str())/25;
       }
       if(i == 1) {
 	// printf("%s \n", result.at(1).substr(result.at(1).find(":") + 1).c_str());
-        scale = atof(result.at(1).substr(result.at(1).find(":") + 1).c_str());
+        scale = atof(result.at(1).substr(result.at(1).find(":") + 1).c_str())/10;
       }
       if(i == 2) {
 	// printf("%s \n", result.at(2).substr(result.at(2).find(":") + 1).c_str());
@@ -86,7 +87,8 @@ static void DrawOnCanvas(Canvas *canvas, FastNoise noise) {
       if(i == 5) {
 	string a = result.at(5).substr(result.at(5).find(":") + 1);
 	// printf("%s \n",  a.substr(0,a.size()-1).c_str());
-      	globalBrightness = atof(a.substr(0,a.size()-1).c_str());
+      	globalBrightness = atof(result.at(6).substr(result.at(6).find(":") + 1).c_str());
+        contrast = atof(a.substr(0,a.size()-1).c_str());
       }
      }
 
@@ -99,7 +101,10 @@ static void DrawOnCanvas(Canvas *canvas, FastNoise noise) {
 
     for(float i=0.0f; i<canvas->width(); i+=1.0f) {
       for(float j=0.0f; j<canvas->height(); j+=1.0f) {
-        float col = (noise.GetNoise(i*scale,j*scale,k*speed)+1.0f)/2.0f*globalBrightness/255;
+        float col = (noise.GetNoise(i*scale,j*scale,k*speed)+1.0f)/2.0f;
+        col = col + globalBrightness;
+        if(col > 255) col = 255;
+        col = (contrast * (col - 0.5) + 0.5);
         // int col = (int)((noise.GetNoise(i,j,k)+1.0)/2.0*100.0);
         canvas->SetPixel(i, j, col * baseR, col * baseG, col * baseB);
       }
