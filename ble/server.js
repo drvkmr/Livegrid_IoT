@@ -5,8 +5,8 @@ function decode(buf) {
 	var StringDecoder = require('string_decoder').StringDecoder;
 	var d = new StringDecoder('utf8');
 	var str = d.write(buf);
-	console.log(buf); //write buffer
-	console.log(str); // write decoded buffer;
+	// console.log(buf); //write buffer
+	// console.log(str); // write decoded buffer;
 	return str;
 }
   

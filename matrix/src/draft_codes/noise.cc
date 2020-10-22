@@ -39,7 +39,7 @@ float scale = 5.0f;
 float speed = 1.0f;
 float contrast = 50.0f;
 float k = 0.0f;
-
+float contrastFactor;
 
 static void InterruptHandler(int signo) {
   interrupt_received = true;
@@ -84,27 +84,35 @@ static void DrawOnCanvas(Canvas *canvas, FastNoise noise) {
 	// printf("%s \n", result.at(4).substr(result.at(4).find(":") + 1).c_str());
         baseB = atoi(result.at(4).substr(result.at(4).find(":") + 1).c_str());
       }
-      if(i == 5) {
-	string a = result.at(5).substr(result.at(5).find(":") + 1);
+      if(i == 5) {	
+	// printf("%s \n",  result.at(5).substr(result.at(5).find(":") + 1).c_str());
+      	globalBrightness = atof(result.at(5).substr(result.at(5).find(":") + 1).c_str());        
+      }
+      if(i == 6) {
+	string a = result.at(6).substr(result.at(6).find(":") + 1);
 	// printf("%s \n",  a.substr(0,a.size()-1).c_str());
-      	globalBrightness = atof(result.at(6).substr(result.at(6).find(":") + 1).c_str());
-        contrast = atof(a.substr(0,a.size()-1).c_str());
+	contrast = atof(a.substr(0,a.size()-1).c_str());
+  contrastFactor = ((259.0f*(contrast+255.0f))/(255.0f*(259.0f-contrast)));
       }
      }
 
-    //  printf("speed: %f \n",  speed);
-    //  printf("scale: %f \n",  scale);
-    //  printf("globalBrightness: %f \n",  globalBrightness);
-    //  printf("baseR: %d \n",  baseR);
-    //  printf("baseG: %d \n",  baseG);
-    //  printf("baseB: %d \n",  baseB);
+    // printf("speed: %f \n",  speed);
+    // printf("scale: %f \n",  scale);
+    // printf("globalBrightness: %f \n",  globalBrightness);
+    // printf("baseR: %d \n",  baseR);
+    // printf("baseG: %d \n",  baseG);
+    // printf("baseB: %d \n",  baseB);
+    // printf("contrast: %f \n",  contrast);
 
     for(float i=0.0f; i<canvas->width(); i+=1.0f) {
       for(float j=0.0f; j<canvas->height(); j+=1.0f) {
-        float col = (noise.GetNoise(i*scale,j*scale,k*speed)+1.0f)/2.0f;
-        col = col + globalBrightness;
+        float col = (noise.GetNoise(i*scale,j*scale,k*speed)+1.0f)/2.0f*255.0f;
+        col = col + globalBrightness - 127;
         if(col > 255) col = 255;
-        col = (contrast * (col - 0.5) + 0.5);
+        col = (contrastFactor * (col - 127) + 127);
+        if(col > 255) col = 255;
+        else if (col < 0) col = 0;
+        col  = col / 255.0f;
         // int col = (int)((noise.GetNoise(i,j,k)+1.0)/2.0*100.0);
         canvas->SetPixel(i, j, col * baseR, col * baseG, col * baseB);
       }

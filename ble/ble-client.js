@@ -88,7 +88,7 @@ class BalenaBLE {
   /* change slider values*/
   async writeJson(data) {
   	console.log("File write");
-  	console.log(data);
+  	// console.log(data);
   	
   	//var buf = new Buffer(data);
   	var buf = new TextEncoder().encode(data);

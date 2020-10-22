@@ -23,7 +23,7 @@ fs.access(path, fs.F_OK, (err) => {
 	if (err) {
 		var json_data = JSON.stringify(data);
 		fs.writeFileSync(path, json_data)
-		console.log("File written on index");
+		// console.log("File written on index");
 		return
 	}
 	//file exists
