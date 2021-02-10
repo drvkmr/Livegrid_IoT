@@ -1,4 +1,4 @@
-const bleno = require("bleno");
+const bleno = require("rpi-fix-bleno");
 const DeviceInfoService = require("./utils/services/device-info-service");
 const DataHandlerService = require("./utils/services/data-handler-service");
 const deviceInfoService = new DeviceInfoService();

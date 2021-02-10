@@ -1,4 +1,6 @@
-# c-multistage-docker
-An Example of Docker's Multi Stage Build for compiling a C program without adding the toolchain in the final container image.
-
-replace `hello.c` with your source-code and make sure you rename any reference of it in the Dockerfile.template
+1. Connect everything together as shown in the "Connection key.jpeg". AC connection should be the last thing to plug in.
+2. Connect a keyboard and mouse to the Pi and plug in the AC cable. Use this to connect it to wifi then - (https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md)
+3. Alternatively you can also set up a headless SSH (https://www.raspberrypi.org/documentation/configuration/wireless/headless.md)
+4. Wi-Fi is very stable. But if you want to use ethernet, you will need to purchase a USB-Ethernet Adapter - (https://elinux.org/RPi_USB_Ethernet_adapters)
+5. To test the matrix independently of BLE component, navigate to ./matrix/examples-api-use. And run this command - "sudo ./demo -D0 --led-rows=32 --led-cols=64 --led-slowdown-gpio=2 --led-gpio-mapping=adafruit-hat-pwm"
+6. You can navigate to "https://github.com/hzeller/rpi-rgb-led-matrix" or just look at the readme.md in matrix to see what other demos can be run and how to build the files if needed. Just add the environment variables "--led-rows=32 --led-cols=64 --led-slowdown-gpio=2 --led-gpio-mapping=adafruit-hat-pwm" at the end of the command so the code knows the specifications of the panel.
